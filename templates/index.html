@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pentest Graph Tool</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.23.0/cytoscape.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <div class="context-bar">
+        <div>
+            <select id="node-icon">
+                <option value="🖥️">Computer</option>
+                <option value="👤">Person</option>
+                <option value="👨‍💼">Admin</option>
+                <option value="🔒">Lock</option>
+                <option value="💀">Skull</option>
+            </select>
+            <input type="text" id="node-name" placeholder="Node name">
+            <button onclick="addNode()">Add Node</button>
+        </div>
+        <div>
+            <button id="connect-btn" onclick="connectSelected()" disabled>Connect Selected</button>
+            <!-- <button onclick="viewCommands()">View Commands</button> -->
+            <button onclick="clearGraph()">Clear</button>
+            <button onclick="resetView()">Reset View</button>
+            <button onclick="downloadPDF()" style="background:#E91E63;">Download PDF Report</button>
+        </div>
+    </div>
+
+    <div id="cy"></div>
+
+    <!-- NEW: Side Panel for Command Output -->
+    <div id="side-panel" class="side-panel">
+        <div class="side-panel-header">
+            <span>Command Output</span>
+            <button onclick="closeSidePanel()">×</button>
+        </div>
+        <div id="command-output" class="command-output"></div>
+    </div>
+
+    <!-- NEW: Global Commands Flyout -->
+    <div id="commands-flyout" class="commands-flyout">
+        <div class="flyout-header">
+            <span>All Commands</span>
+            <button onclick="closeCommandsFlyout()">×</button>
+        </div>
+        <div id="all-commands" class="all-commands"></div>
+    </div>
+
+    <!-- UPDATED: Toast notification -->
+    <div id="toast" class="toast"></div>
+
+    <div id="node-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>Node Properties</span>
+                <button id="maximize-btn" onclick="toggleModalSize()">Full Screen</button>
+                <button class="close" onclick="closeModal()">&times;</button>
+            </div>
+    
+            <label for="modal-name">Name:</label>
+            <input type="text" id="modal-name">
+    
+            <label for="modal-icon">Icon:</label>
+            <select id="modal-icon">
+                <option value="Computer">Computer</option>
+                <option value="Person">Person</option>
+                <option value="Admin">Admin</option>
+                <option value="Lock">Lock</option>
+                <option value="Skull">Skull</option>
+            </select>
+    
+            <label for="modal-notes">Notes:</label>
+            <textarea id="modal-notes"></textarea>
+    
+            <label for="modal-owned">
+                <input type="checkbox" id="modal-owned"> Owned (Skull)
+            </label>
+    
+            <!-- Command Execution -->
+            <h3 style="margin-top: 20px;">Execute Command</h3>
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="command-input" placeholder="e.g. whoami, ip a, netstat -tulnp" style="flex: 1;">
+                <button onclick="executeCommand()" style="width: auto;">Run</button>
+            </div>
+    
+            <!-- Persisted Commands -->
+            <h3 style="margin-top: 15px;">Command History</h3>
+            <div id="persisted-commands" style="max-height: 300px; overflow-y: auto; margin-bottom: 15px;"></div>
+    
+            <!-- Save Button - Back in modal! -->
+            <button onclick="saveModal()" style="width: 100%; padding: 12px; font-size: 16px; margin-top: 10px;">
+                Save Node
+            </button>
+        </div>
+    </div>
+    
+    <!-- NEW: Node-Specific Command Flyout (appears only when modal is open) -->
+    <div id="node-command-flyout" class="commands-flyout" style="display: none; width: 480px; right: 20px; top: 80px;">
+        <div class="flyout-header">
+            <span id="flyout-title">Command History</span>
+            <button onclick="document.getElementById('node-command-flyout').style.display='none'">×</button>
+        </div>
+        <div id="flyout-commands" class="all-commands"></div>
+    </div>
+
+    <script src="/static/js/graph.js"></script>
+</body>
+</html>
