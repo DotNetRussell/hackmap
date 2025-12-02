@@ -4,8 +4,6 @@
 
 HackMap is a lightweight, local-first pentest mapping tool that combines an interactive Cytoscape graph with real-time shell command execution and persistent command history — all in one clean interface.
 
-Think BloodHound + custom C2 beacon tracker + live terminal, built for real engagements.
-
 ### Features
 
 - Interactive drag-and-drop attack graph (nodes = hosts/users/domains)
