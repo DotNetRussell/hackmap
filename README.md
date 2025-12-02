@@ -6,17 +6,22 @@ HackMap is a lightweight, local-first pentest mapping tool that combines an inte
 
 ### Features
 
-- Interactive drag-and-drop attack graph (nodes = hosts/users/domains)
+- Interactive drag-and-drop attack graph 
 - Visual connection paths (RDP, WinRM, SMB, etc.)
 - Per-node command execution with **real-time streaming output**
-- Full command history persisted per target (with timestamps)
+- Command history persisted per target (with timestamps)
 - "Owned" flag with skull indicator
 - One-click **PDF engagement report** export
-- Zero authentication by design — runs on `localhost` only
+- Very light weight, zero authentication by design 
 - No dependencies beyond Python 3 + Flask
 
 ### Screenshot
 
-![HackMap in action](https://i.imgur.com/edBFnUz.png)
-![HackMap in action](https://i.imgur.com/rKQqOas.png)
-![HackMap in action](https://i.imgur.com/hUU9X1D.png)
+### Easily generate network diagrams using nodes 
+![HackMap in action](https://i.imgur.com/yI0SCTb.png)
+
+### Each node has contextual notes as well as the ability to tie shell commands directly to the node for tracking
+![HackMap in action](https://i.imgur.com/NGftOC3.png)
+
+### Generate a report that dumps out all the raw node data for more organized report writing 
+![HackMap in action](https://i.imgur.com/MhFFQp1.png)
