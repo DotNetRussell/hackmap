@@ -6,11 +6,11 @@ from typing import Dict, List, Any
 from datetime import datetime  # NEW: For timestamps
 
 ICON_COLORS = {
-    '🖥️': '#4285F4',
-    '👤': '#34A853',
-    '👨‍💼': '#FBBC05',
-    '🔒': '#EA4335',
-    '💀': '#9AA0A6'
+    'PC': '#4285F4',    # Blue
+    'Person': '#34A853',  # Green
+    'Admin': '#FBBC05',   # Yellow
+    'Lock': '#EA4335',    # Red
+    'Skull': '#9AA0A6',   # Gray
 }
 
 class GraphModel:
@@ -112,21 +112,27 @@ class GraphModel:
         self._save()
         return node_id
 
-    def update_node(self, node_id: str, name: str = None, icon: str = None, notes: str = None, owned: str = None, x: float = None, y: float = None):
+    # graph.py
+    def update_node(self, node_id: str, name: str = None, icon: str = None, notes: str = None, owned: bool = None, x: float = None, y: float = None):
         for node in self.data["nodes"]:
             if node["data"]["id"] == node_id:
                 if name is not None:
                     node["data"]["name"] = name
                 if icon is not None:
                     node["data"]["icon"] = icon
-                    node["data"]["iconColor"] = ICON_COLORS.get(icon, '#007ACC')
+                    node["data"]["iconColor"] = ICON_COLORS.get(icon, '#4285F4')  # THIS WAS MISSING!
                 if notes is not None:
                     node["data"]["notes"] = notes
                 if owned is not None:
                     node["data"]["owned"] = owned
                 if x is not None and y is not None:
                     node["position"] = {"x": x, "y": y}
+
+                # ALWAYS rebuild label + ensure iconColor exists
                 node["data"]["label"] = self._build_label(node["data"])
+                if "iconColor" not in node["data"]:
+                    node["data"]["iconColor"] = ICON_COLORS.get(icon or node["data"].get("icon", "PC"), '#4285F4')
+
                 self._save()
                 return True
         return False

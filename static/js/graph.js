@@ -238,9 +238,7 @@ async function executeCommand() {
     const command = input.value.trim();
     if (!command || !currentNodeId) return;
 
-    input.disabled = true;
-
-    // Create a live output box
+    // Create live output box
     const outputBox = document.createElement('div');
     outputBox.className = 'persisted-command';
     outputBox.innerHTML = `
@@ -248,11 +246,14 @@ async function executeCommand() {
             <strong>${escapeHtml(command)}</strong>
             <small style="color:#888;">Running...</small>
         </div>
-        <pre style="background:#222; padding:8px; margin:5px 0; max-height:300px; overflow:auto; font-size:12px;" id="live-output-${currentNodeId}"></pre>
+        <pre style="background:#222; padding:8px; margin:5px 0; font-size:12px; max-height:300px; overflow:auto;" 
+             id="live-output-${currentNodeId}"></pre>
     `;
     document.getElementById('persisted-commands').prepend(outputBox);
-
     const livePre = outputBox.querySelector('pre');
+
+    // Always clear input immediately
+    input.value = '';
 
     try {
         const response = await fetch(`/api/v1/graph/nodes/${currentNodeId}/execute`, {
@@ -261,7 +262,7 @@ async function executeCommand() {
             body: JSON.stringify({ command })
         });
 
-        if (!response.ok) throw new Error('Failed to start command');
+        if (!response.ok) throw new Error('Failed to start');
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
@@ -269,80 +270,88 @@ async function executeCommand() {
         while (true) {
             const { done, value } = await reader.read();
             if (done) break;
-
             const chunk = decoder.decode(value, { stream: true });
-            const lines = chunk.split('\n');
-            for (const line of lines) {
-                if (line.trim()) {
-                    livePre.textContent += line + '\n';
-                    livePre.scrollTop = livePre.scrollHeight;
-                }
-            }
+            livePre.textContent += chunk;
+            livePre.scrollTop = livePre.scrollHeight;
         }
 
-        // Final refresh to ensure persistence
+        // Final refresh
         loadGraph();
-
-        showNotification('Command completed!', () => {
-            document.getElementById('node-command-flyout')?.scrollIntoView({ behavior: 'smooth' });
-        });
 
     } catch (e) {
         livePre.textContent += `\n[ERROR] ${e.message}\n`;
-        console.error(e);
-    } finally {
-        input.disabled = false;
-        input.value = '';
-        input.focus();
     }
 }
 
 async function downloadPDF() {
     const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF();
+    const pdf = new jsPDF('p', 'mm', 'a4');
     let y = 20;
+    const pageHeight = pdf.internal.pageSize.height;
+    const margin = 15;
+    const maxWidth = 180; // 210mm - 30mm margins
 
-    const addText = (text, size = 12, style = '') => {
-        pdf.setFontSize(size);
-        if (style === 'bold') pdf.setFont(undefined, 'bold');
-        pdf.text(text, 15, y);
-        y += size === 20 ? 15 : 8;
-        if (y > 270) { pdf.addPage(); y = 20; }
-        pdf.setFont(undefined, 'normal');
+    const wrapText = (text, fontSize = 10, isBold = false) => {
+        pdf.setFontSize(fontSize);
+        pdf.setFont(undefined, isBold ? 'bold' : 'normal');
+        const lines = pdf.splitTextToSize(text, maxWidth);
+        lines.forEach(line => {
+            if (y > pageHeight - 20) {
+                pdf.addPage();
+                y = 20;
+            }
+            pdf.text(line, margin, y);
+            y += fontSize <= 9 ? 5 : 6;
+        });
     };
 
     try {
         const res = await fetch('/api/v1/graph');
         const data = await res.json();
 
-        addText("Pentest Graph Report", 20, 'bold');
-        addText(`Generated: ${new Date().toLocaleString()}`, 10);
-        addText(`Total Nodes: ${data.nodes.length} | Owned: ${data.nodes.filter(n => n.data.owned).length}`, 10);
-        y += 10;
+        pdf.setFontSize(20);
+        pdf.setFont(undefined, 'bold');
+        pdf.text("HackMap - Engagement Report", margin, y);
+        y += 12;
+
+        pdf.setFontSize(10);
+        pdf.setFont(undefined, 'normal');
+        wrapText(`Generated: ${new Date().toLocaleString()}`);
+        wrapText(`Total Nodes: ${data.nodes.length} | Owned: ${data.nodes.filter(n => n.data.owned).length}`);
+        y += 8;
 
         data.nodes.forEach(node => {
             const d = node.data;
-            const icon = d.icon || 'PC';
-            const owned = d.owned ? 'Owned' : '';
-            addText(`${icon} ${d.name} ${owned}`, 14, 'bold');
+            const status = d.owned ? "Owned" : "";
+            wrapText(`${d.icon} ${d.name} ${status}`, 13, true);
 
-            if (d.notes) addText(`Notes: ${d.notes}`, 10);
+            if (d.notes?.trim()) {
+                wrapText(`Notes: ${d.notes.trim()}`, 10);
+            }
+
             if (d.commands?.length > 0) {
-                addText("Commands:", 11, 'bold');
+                wrapText(`Commands Executed (${d.commands.length}):`, 11, true);
                 d.commands.slice().reverse().forEach(cmd => {
-                    addText(`$ ${cmd.command}`, 10);
-                    const lines = cmd.output.trim().split('\n');
-                    lines.slice(0, 15).forEach(line => addText(line, 9)); // limit per cmd
-                    if (lines.length > 15) addText("[...truncated]", 9);
-                    addText(`— ${new Date(cmd.timestamp).toLocaleString()}`, 8);
+                    wrapText(`$ ${cmd.command}`, 10, true);
+
+                    const output = cmd.output.trim();
+                    if (output) {
+                        const lines = output.split('\n').slice(0, 50); // limit per command
+                        lines.forEach(line => wrapText(line, 9));
+                        if (output.split('\n').length > 50) wrapText("[... output truncated]", 9);
+                    } else {
+                        wrapText("(no output)", 9);
+                    }
+                    wrapText(`— ${new Date(cmd.timestamp).toLocaleString()}`, 8);
+                    y += 3;
                 });
             }
-            y += 5;
+            y += 8; // spacing between nodes
         });
 
-        pdf.save(`pentest-report-${new Date().toISOString().slice(0,10)}.pdf`);
+        pdf.save(`hackmap-report-${new Date().toISOString().slice(0,10)}.pdf`);
     } catch (e) {
-        alert("Failed to generate PDF: " + e.message);
+        alert("PDF generation failed: " + e.message);
     }
 }
 
@@ -590,6 +599,27 @@ async function connectNodes(source, target) {
     }
 }
 
+async function deleteCurrentNode() {
+    if (!currentNodeId) return;
+    if (!confirm(`Permanently delete node "${cy.$('#' + currentNodeId).data('name') || 'this node'}"?`)) return;
+
+    try {
+        // Remove node from Cytoscape
+        cy.$('#' + currentNodeId).remove();
+
+        // Remove from backend (optional but recommended for persistence)
+        await fetch(`/api/v1/graph/nodes/${currentNodeId}`, {
+            method: 'DELETE'
+        });
+
+        closeModal();
+        console.log('Node deleted:', currentNodeId);
+    } catch (e) {
+        alert('Failed to delete node');
+        console.error(e);
+    }
+}
+
 async function removeEdge(edgeId) {
     try {
         await fetch(`/api/v1/graph/edges/${edgeId}`, { method: 'DELETE' });
@@ -604,16 +634,16 @@ async function saveModal() {
     const icon = document.getElementById('modal-icon').value;
     const notes = document.getElementById('modal-notes').value;
     const owned = document.getElementById('modal-owned').checked;
-    
+
     if (!name) return alert('Name required!');
-    
+
     try {
         await fetch(`/api/v1/graph/nodes/${currentNodeId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name, icon, notes, owned })
         });
-        loadGraph();
+        loadGraph();  // Forces full refresh with correct icon/color
         closeModal();
     } catch (e) {
         console.error(e);

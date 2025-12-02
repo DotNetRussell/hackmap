@@ -12,19 +12,19 @@
     <div class="context-bar">
         <div>
             <select id="node-icon">
-                <option value="🖥️">Computer</option>
-                <option value="👤">Person</option>
-                <option value="👨‍💼">Admin</option>
-                <option value="🔒">Lock</option>
-                <option value="💀">Skull</option>
+                <option value="PC">Computer</option>
+                <option value="Person">Person</option>
+                <option value="Admin">Admin</option>
+                <option value="Lock">Lock</option>
+                <option value="Skull">Skull</option>
             </select>
             <input type="text" id="node-name" placeholder="Node name">
             <button onclick="addNode()">Add Node</button>
         </div>
+        <!-- In the context-bar, replace the old buttons with this -->
         <div>
             <button id="connect-btn" onclick="connectSelected()" disabled>Connect Selected</button>
-            <!-- <button onclick="viewCommands()">View Commands</button> -->
-            <button onclick="clearGraph()">Clear</button>
+            <button onclick="clearGraph()">Clear Graph</button>
             <button onclick="resetView()">Reset View</button>
             <button onclick="downloadPDF()" style="background:#E91E63;">Download PDF Report</button>
         </div>
@@ -33,14 +33,14 @@
     <div id="cy"></div>
 
     <!-- NEW: Side Panel for Command Output -->
-    <div id="side-panel" class="side-panel">
+    <!-- <div id="side-panel" class="side-panel">
         <div class="side-panel-header">
             <span>Command Output</span>
             <button onclick="closeSidePanel()">×</button>
         </div>
         <div id="command-output" class="command-output"></div>
-    </div>
-
+    </div> -->
+ 
     <!-- NEW: Global Commands Flyout -->
     <div id="commands-flyout" class="commands-flyout">
         <div class="flyout-header">
@@ -66,7 +66,7 @@
     
             <label for="modal-icon">Icon:</label>
             <select id="modal-icon">
-                <option value="Computer">Computer</option>
+                <option value="PC">Computer</option>
                 <option value="Person">Person</option>
                 <option value="Admin">Admin</option>
                 <option value="Lock">Lock</option>
@@ -94,6 +94,9 @@
             <!-- Save Button - Back in modal! -->
             <button onclick="saveModal()" style="width: 100%; padding: 12px; font-size: 16px; margin-top: 10px;">
                 Save Node
+            </button>
+            <button onclick="deleteCurrentNode()" style="background:#d32f2f; margin-top:10px; width:100%; padding:12px; font-weight:bold;">
+                Delete Node
             </button>
         </div>
     </div>

@@ -26,6 +26,23 @@ def add_node():
     node_id = graph_model.add_node(name, icon, x=x, y=y)
     return jsonify({'id': node_id}), 201
 
+@api_bp.route('/graph/nodes/<node_id>', methods=['DELETE'])
+def delete_node(node_id):
+    removed = False
+    # Remove node
+    graph_model.data["nodes"] = [
+        n for n in graph_model.data["nodes"]
+        if n["data"]["id"] != node_id
+    ]
+    # Remove any edges connected to it
+    graph_model.data["edges"] = [
+        e for e in graph_model.data["edges"]
+        if e["data"]["source"] != node_id and e["data"]["target"] != node_id
+    ]
+    graph_model._save()
+    return jsonify({'message': 'Node deleted'}), 200
+
+
 @api_bp.route('/graph/nodes/<node_id>', methods=['PUT'])
 def update_node(node_id):
     data = request.json
