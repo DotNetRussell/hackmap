@@ -1,5 +1,6 @@
 let cy, currentNodeId = null, selectedNodes = [];
 let modalMaximized = false;  // Track modal size
+let currentEdgeId = null;
 
 // NEW: Connect all selected nodes in sequence (or pairwise)
 function updateConnectButton() {
@@ -11,6 +12,31 @@ function updateConnectButton() {
         btn.disabled = true;
         btn.textContent = 'Connect Selected';
     }
+}
+
+async function saveEdgeModal() {
+    const label = document.getElementById('edge-label').value.trim();
+    const color = document.getElementById('edge-color').value;
+
+    if (!label) return alert('Label required!');
+
+    try {
+        await fetch(`/api/v1/graph/edges/${currentEdgeId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ label, color })
+        });
+        loadGraph();
+        closeEdgeModal();
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+// Function to close edge modal
+function closeEdgeModal() {
+    document.getElementById('edge-modal').style.display = 'none';
+    currentEdgeId = null;
 }
 
 async function connectSelected() {
@@ -77,6 +103,22 @@ document.addEventListener('DOMContentLoaded', function() {
                     'target-arrow-fill': 'filled',
                     'curve-style': 'bezier',
                     'label': 'data(label)',
+                    'font-size': 16,
+                    'color': 'white',
+                    'text-background-color': 'rgba(0,0,0,0.7)',
+                    'text-background-opacity': 0.8
+                }
+            },
+            {
+                selector: 'edge',
+                style: {
+                    'width': 8,
+                    'line-color': 'data(color)',  // Use dynamic color from data
+                    'target-arrow-shape': 'triangle',
+                    'target-arrow-color': 'data(color)',  // Match arrow to line
+                    'target-arrow-fill': 'filled',
+                    'curve-style': 'bezier',
+                    'label': 'data(label)',  // Use dynamic label from data
                     'font-size': 16,
                     'color': 'white',
                     'text-background-color': 'rgba(0,0,0,0.7)',
@@ -225,6 +267,15 @@ function setupEvents() {
             selectedNodes = [];
             updateConnectButton();
         }
+    });
+
+    cy.on('dbltap', 'edge', function(evt) {
+        const edge = evt.target;
+        currentEdgeId = edge.id();
+        const data = edge.data();
+        document.getElementById('edge-label').value = data.label || '→';
+        document.getElementById('edge-color').value = data.color || '#FF9800';
+        document.getElementById('edge-modal').style.display = 'block';
     });
 }
 
@@ -457,7 +508,7 @@ function closeSidePanel() {
 // UPDATED: Toggle modal size to full expand
 function toggleModalSize() {
     const modal = document.getElementById('node-modal');
-    const content = document.querySelector('.modal-content');
+    const content = document.querySelector('#node-modal .modal-content');  // FIXED: Target the node modal specifically
     modalMaximized = !modalMaximized;
     if (modalMaximized) {
         content.style.width = '95vw';

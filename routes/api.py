@@ -16,6 +16,15 @@ graph_model = GraphModel(Config.GRAPH_DB_PATH)
 def get_graph():
     return jsonify(graph_model.get_graph())
 
+@api_bp.route('/graph/edges/<edge_id>', methods=['PUT'])
+def update_edge(edge_id):
+    data = request.json
+    label = data.get('label')
+    color = data.get('color')
+    if graph_model.update_edge(edge_id, label, color):
+        return jsonify({'message': 'Edge updated'}), 200
+    return jsonify({'error': 'Edge not found'}), 404
+
 @api_bp.route('/graph/nodes', methods=['POST'])
 def add_node():
     data = request.json

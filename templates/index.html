@@ -52,7 +52,25 @@
 
     <!-- UPDATED: Toast notification -->
     <div id="toast" class="toast"></div>
-
+<!-- Edge Edit Modal -->
+<div id="edge-modal" class="modal">
+    <div id="edge-modal-content" class="modal-content">
+        <div class="modal-header">
+            <span>Edit Edge</span>
+            <button class="close" onclick="closeEdgeModal()">&times;</button>
+        </div>
+        
+        <label for="edge-label">Label:</label>
+        <input type="text" id="edge-label" placeholder="e.g. RDP, SMB">
+        
+        <label for="edge-color">Color:</label>
+        <input type="color" id="edge-color" value="#FF9800">
+        
+        <button onclick="saveEdgeModal()" style="width: 100%; padding: 12px; font-size: 16px; margin-top: 10px;">
+            Save Edge
+        </button>
+    </div>
+</div>
     <div id="node-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">

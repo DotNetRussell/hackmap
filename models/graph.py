@@ -88,6 +88,27 @@ class GraphModel:
         print(f"API: Fixed {len(data['nodes'])} node positions")
         return data
 
+    def add_edge(self, source: str, target: str, label: str = "→", color: str = "#FF9800") -> str:
+        edge_id = f"edge-{uuid.uuid4().hex[:8]}"
+        edge = {
+            "group": "edges",
+            "data": {"id": edge_id, "source": source, "target": target, "label": label, "color": color}
+        }
+        self.data["edges"].append(edge)
+        self._save()
+        return edge_id
+
+    def update_edge(self, edge_id: str, label: str = None, color: str = None) -> bool:
+        for edge in self.data["edges"]:
+            if edge["data"]["id"] == edge_id:
+                if label is not None:
+                    edge["data"]["label"] = label
+                if color is not None:
+                    edge["data"]["color"] = color
+                self._save()
+                return True
+        return False
+        
     def add_node(self, name: str, icon: str, notes: str = "", owned: bool = False, x: float = 0, y: float = 0) -> str:
         node_id = f"node-{uuid.uuid4().hex[:8]}"
         label = self._build_label({"icon": icon, "name": name, "owned": owned})
