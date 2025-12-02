@@ -12,21 +12,22 @@
     <div class="context-bar">
         <div>
             <select id="node-icon">
-                <option value="PC">Computer</option>
-                <option value="Person">Person</option>
-                <option value="Admin">Admin</option>
-                <option value="Lock">Lock</option>
-                <option value="Skull">Skull</option>
+                <option value="PC">🖥 Computer</option>
+                <option value="Person">🧌 Person</option>
+                <option value="Admin">🛡 Admin</option>
+                <option value="Lock">🔐 Lock</option>
+                <option value="Skull">🏴‍☠️ Skull</option>
+                <option value="Endpoint">🌐 Endpoint</option>
             </select>
             <input type="text" id="node-name" placeholder="Node name">
-            <button onclick="addNode()">Add Node</button>
+            <button onclick="addNode()">✅ Add Node</button>
         </div>
         <!-- In the context-bar, replace the old buttons with this -->
         <div>
-            <button id="connect-btn" onclick="connectSelected()" disabled>Connect Selected</button>
-            <button onclick="clearGraph()">Clear Graph</button>
-            <button onclick="resetView()">Reset View</button>
-            <button onclick="downloadPDF()" style="background:#E91E63;">Download PDF Report</button>
+            <button id="connect-btn" onclick="connectSelected()" disabled>🔗 Connect Selected</button>
+            <button onclick="clearGraph()">💣 Clear Graph</button>
+            <button onclick="resetView()">🔍 Reset View</button>
+            <button onclick="downloadPDF()" style="background:#E91E63;">📜 Download PDF Report</button>
         </div>
     </div>
 
@@ -41,7 +42,7 @@
         <div id="command-output" class="command-output"></div>
     </div> -->
  
-    <!-- NEW: Global Commands Flyout -->
+    <!-- Global Commands Flyout -->
     <div id="commands-flyout" class="commands-flyout">
         <div class="flyout-header">
             <span>All Commands</span>
@@ -50,7 +51,7 @@
         <div id="all-commands" class="all-commands"></div>
     </div>
 
-    <!-- UPDATED: Toast notification -->
+    <!-- Toast notification -->
     <div id="toast" class="toast"></div>
 <!-- Edge Edit Modal -->
 <div id="edge-modal" class="modal">
@@ -84,11 +85,12 @@
     
             <label for="modal-icon">Icon:</label>
             <select id="modal-icon">
-                <option value="PC">Computer</option>
-                <option value="Person">Person</option>
-                <option value="Admin">Admin</option>
-                <option value="Lock">Lock</option>
-                <option value="Skull">Skull</option>
+                <option value="PC">🖥 Computer</option>
+                <option value="Person">🧌 Person</option>
+                <option value="Admin">🛡 Admin</option>
+                <option value="Lock">🔐 Lock</option>
+                <option value="Skull">🏴‍☠️ Skull</option>
+                <option value="Endpoint">🌐 Endpoint</option>
             </select>
     
             <label for="modal-notes">Notes:</label>
@@ -109,7 +111,7 @@
             <h3 style="margin-top: 15px;">Command History</h3>
             <div id="persisted-commands" style="max-height: 300px; overflow-y: auto; margin-bottom: 15px;"></div>
     
-            <!-- Save Button - Back in modal! -->
+            <!-- Save Button -->
             <button onclick="saveModal()" style="width: 100%; padding: 12px; font-size: 16px; margin-top: 10px;">
                 Save Node
             </button>
@@ -119,7 +121,7 @@
         </div>
     </div>
     
-    <!-- NEW: Node-Specific Command Flyout (appears only when modal is open) -->
+    <!-- Node-Specific Command Flyout -->
     <div id="node-command-flyout" class="commands-flyout" style="display: none; width: 480px; right: 20px; top: 80px;">
         <div class="flyout-header">
             <span id="flyout-title">Command History</span>

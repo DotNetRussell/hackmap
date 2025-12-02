@@ -3,7 +3,7 @@ import os
 import uuid
 import math
 from typing import Dict, List, Any
-from datetime import datetime  # NEW: For timestamps
+from datetime import datetime 
 
 ICON_COLORS = {
     'PC': '#4285F4',    # Blue
@@ -11,6 +11,16 @@ ICON_COLORS = {
     'Admin': '#FBBC05',   # Yellow
     'Lock': '#EA4335',    # Red
     'Skull': '#9AA0A6',   # Gray
+    'Endpoint': '#9AA0A6',   # Gray
+}
+
+ICON_EMOJIS = {
+    "PC": "🖥",
+    "Person": "🧌",
+    "Admin": "🛡",
+    "Lock": "🔐",
+    "Skull": "🏴‍☠️",
+    "Endpoint": "🌐",
 }
 
 class GraphModel:
@@ -68,7 +78,8 @@ class GraphModel:
     def _build_label(self, node_data):
         icon = node_data.get("icon", "🖥️")
         name = node_data.get("name", "Unnamed Node")
-        label = f"{icon}\n{name}"
+        #label = f"{icon}\n{name}"
+        label = f"{ICON_EMOJIS[node_data['icon']]} {node_data['name']}" if ICON_COLORS.get(node_data['icon']) else node_data['name'] 
         if node_data.get("owned", False):
             label += "\n💀 Owned"
         return label

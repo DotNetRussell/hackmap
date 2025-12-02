@@ -2,7 +2,7 @@ let cy, currentNodeId = null, selectedNodes = [];
 let modalMaximized = false;  // Track modal size
 let currentEdgeId = null;
 
-// NEW: Connect all selected nodes in sequence (or pairwise)
+// Connect all selected nodes in sequence 
 function updateConnectButton() {
     const btn = document.getElementById('connect-btn');
     if (selectedNodes.length >= 2) {
@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 selector: 'node',
                 style: {
                     'background-color': 'data(iconColor)',
-                    'label': 'data(label)',  // FIXED: Use full label (includes icon and skull)
+                    'label': 'data(label)', 
                     'text-valign': 'center',
                     'color': 'white',
                     'font-size': 18,
