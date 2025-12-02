@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
             idealEdgeLength: 200,
             nodeDimensionsIncludeLabels: true
         },
-        wheelSensitivity: 1.0,
+        wheelSensitivity: 0.1,
         userZoomingEnabled: true,
         userPanningEnabled: true
     });
