@@ -17,3 +17,8 @@ Think BloodHound + custom C2 beacon tracker + live terminal, built for real enga
 - Zero authentication by design — runs on `localhost` only
 - No dependencies beyond Python 3 + Flask
 
+### Screenshot
+
+![HackMap in action](https://i.imgur.com/edBFnUz.png)
+![HackMap in action](https://i.imgur.com/rKQqOas.png)
+![HackMap in action](https://i.imgur.com/hUU9X1D.png)
