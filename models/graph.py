@@ -10,8 +10,8 @@ ICON_COLORS = {
     'Person': '#34A853',  # Green
     'Admin': '#FBBC05',   # Yellow
     'Lock': '#EA4335',    # Red
-    'Skull': '#9AA0A6',   # Gray
-    'Endpoint': '#9AA0A6',   # Gray
+    'Skull': '#131414',   # Gray
+    'Endpoint': '#4a4d4f',   # Gray
 }
 
 ICON_EMOJIS = {
