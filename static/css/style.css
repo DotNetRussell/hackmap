@@ -16,6 +16,19 @@ body {
     justify-content: space-between;
     box-shadow: 0 4px 20px rgba(0,0,0,0.5);
 }
+#file-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+#file-select {
+    padding: 10px;
+    border: 1px solid #555;
+    border-radius: 6px;
+    background: #404040;
+    color: white;
+    font-size: 14px;
+}
 #node-icon, #node-name { 
     padding: 10px; 
     border: 1px solid #555; 

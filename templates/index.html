@@ -10,12 +10,19 @@
 </head>
 <body>
     <div class="context-bar">
+        <div id="file-controls">
+            <label for="file-select">Data File:</label>
+            <select id="file-select"></select>
+            <button id="download-btn">Download</button>
+            <input type="file" id="upload-input" accept=".json" style="display:none;">
+            <button id="upload-btn">Upload</button>
+        </div>
         <div>
             <select id="node-icon">
                 <option value="PC">🖥 Computer</option>
-                <option value="Person">🧌 Person</option>
-                <option value="Admin">🛡 Admin</option>
-                <option value="Lock">🔐 Lock</option>
+                <option value="Person">🧑 Person</option>
+                <option value="Admin">🛡️ Admin</option>
+                <option value="Lock">🔒 Lock</option>
                 <option value="Skull">🏴‍☠️ Skull</option>
                 <option value="Endpoint">🌐 Endpoint</option>
             </select>
@@ -27,7 +34,7 @@
             <button id="connect-btn" onclick="connectSelected()" disabled>🔗 Connect Selected</button>
             <button onclick="clearGraph()">💣 Clear Graph</button>
             <button onclick="resetView()">🔍 Reset View</button>
-            <button onclick="downloadPDF()" style="background:#E91E63;">📜 Download PDF Report</button>
+            <button onclick="downloadPDF()" style="background:#E91E63;">📄 Download PDF Report</button>
         </div>
     </div>
 
@@ -58,7 +65,7 @@
     <div id="edge-modal-content" class="modal-content">
         <div class="modal-header">
             <span>Edit Edge</span>
-            <button class="close" onclick="closeEdgeModal()">&times;</button>
+            <button class="close" onclick="closeEdgeModal()">×</button>
         </div>
         
         <label for="edge-label">Label:</label>
@@ -77,7 +84,7 @@
             <div class="modal-header">
                 <span>Node Properties</span>
                 <button id="maximize-btn" onclick="toggleModalSize()">Full Screen</button>
-                <button class="close" onclick="closeModal()">&times;</button>
+                <button class="close" onclick="closeModal()">×</button>
             </div>
     
             <label for="modal-name">Name:</label>
@@ -86,9 +93,9 @@
             <label for="modal-icon">Icon:</label>
             <select id="modal-icon">
                 <option value="PC">🖥 Computer</option>
-                <option value="Person">🧌 Person</option>
-                <option value="Admin">🛡 Admin</option>
-                <option value="Lock">🔐 Lock</option>
+                <option value="Person">🧑 Person</option>
+                <option value="Admin">🛡️ Admin</option>
+                <option value="Lock">🔒 Lock</option>
                 <option value="Skull">🏴‍☠️ Skull</option>
                 <option value="Endpoint">🌐 Endpoint</option>
             </select>
@@ -125,7 +132,7 @@
     <div id="node-command-flyout" class="commands-flyout" style="display: none; width: 480px; right: 20px; top: 80px;">
         <div class="flyout-header">
             <span id="flyout-title">Command History</span>
-            <button onclick="document.getElementById('node-command-flyout').style.display='none'">×</button>
+            <button onclick="document.getElementById('node-command-flyout').style.display='none';">×</button>
         </div>
         <div id="flyout-commands" class="all-commands"></div>
     </div>

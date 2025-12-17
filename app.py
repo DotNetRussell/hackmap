@@ -6,6 +6,7 @@ from routes.api import api_bp
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+    app.secret_key = 'your-secret-key'  # Required for sessions; set securely in production
 
     # Register blueprints
     app.register_blueprint(pages_bp)

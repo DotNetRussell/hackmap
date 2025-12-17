@@ -15,17 +15,17 @@ ICON_COLORS = {
 }
 
 ICON_EMOJIS = {
-    "PC": "🖥",
-    "Person": "🧌",
-    "Admin": "🛡",
-    "Lock": "🔐",
-    "Skull": "🏴‍☠️",
-    "Endpoint": "🌐",
+    "PC": "\ud83d\udda5",
+    "Person": "\ud83e\uddcc",
+    "Admin": "\ud83d\udee1",
+    "Lock": "\ud83d\udd10",
+    "Skull": "\ud83c\udff4\u200d\u2620\ufe0f",
+    "Endpoint": "\ud83c\udf10",
 }
 
 class GraphModel:
     def __init__(self, db_path: str):
-        self.db_path = db_path
+        self.db_path = db_path  # Now a full path to the specific file
         self.data = self._load()
 
     def _load(self) -> Dict[str, List[Dict[str, Any]]]:
@@ -59,7 +59,7 @@ class GraphModel:
         for edge in data.get("edges", []):
             edge_data = edge.get("data", {})
             if "label" not in edge_data:
-                edge_data["label"] = "→"
+                edge_data["label"] = "\u2192"
             edge["data"] = edge_data
         
         self._save_data(data)
@@ -76,12 +76,12 @@ class GraphModel:
             json.dump(data, f, indent=2)
 
     def _build_label(self, node_data):
-        icon = node_data.get("icon", "🖥️")
+        icon = node_data.get("icon", "\ud83d\udda5\ufe0f")
         name = node_data.get("name", "Unnamed Node")
         #label = f"{icon}\n{name}"
         label = f"{ICON_EMOJIS[node_data['icon']]} {node_data['name']}" if ICON_COLORS.get(node_data['icon']) else node_data['name'] 
         if node_data.get("owned", False):
-            label += "\n💀 Owned"
+            label += "\n\ud83d\udc80 Owned"
         return label
 
     def get_graph(self) -> Dict[str, List[Dict[str, Any]]]:
@@ -99,7 +99,7 @@ class GraphModel:
         print(f"API: Fixed {len(data['nodes'])} node positions")
         return data
 
-    def add_edge(self, source: str, target: str, label: str = "→", color: str = "#FF9800") -> str:
+    def add_edge(self, source: str, target: str, label: str = "\u2192", color: str = "#FF9800") -> str:
         edge_id = f"edge-{uuid.uuid4().hex[:8]}"
         edge = {
             "group": "edges",
@@ -131,7 +131,7 @@ class GraphModel:
             "data": {
                 "id": node_id,
                 "name": name or "Unnamed Node",
-                "icon": icon or "🖥️",
+                "icon": icon or "\ud83d\udda5\ufe0f",
                 "iconColor": ICON_COLORS.get(icon, '#007ACC'),
                 "notes": notes,
                 "owned": owned,

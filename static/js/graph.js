@@ -1,6 +1,79 @@
 let cy, currentNodeId = null, selectedNodes = [];
 let modalMaximized = false;  // Track modal size
 let currentEdgeId = null;
+let currentFile = 'default.json';  // Default
+
+// Function to load files into dropdown
+function loadFileList() {
+  fetch('/api/v1/files')
+    .then(response => response.json())
+    .then(files => {
+      const select = document.getElementById('file-select');
+      select.innerHTML = '';
+      files.forEach(file => {
+        const option = document.createElement('option');
+        option.value = file;
+        option.textContent = file;
+        if (file === currentFile) option.selected = true;
+        select.appendChild(option);
+      });
+    })
+    .catch(e => console.error('Error loading file list:', e));
+}
+
+// Switch file on dropdown change
+document.getElementById('file-select').addEventListener('change', (e) => {
+  const name = e.target.value;
+  console.log('Switching to file:', name);
+  fetch('/api/v1/switch', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name })
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log('Switched file data:', data);
+    // Reload the graph with new data (combine nodes and edges into array)
+    cy.elements().remove();
+    const elements = (data.nodes || []).concat(data.edges || []);
+    cy.add(elements);
+    currentFile = name;
+  })
+  .catch(e => console.error('Error switching file:', e));
+});
+
+// Download button
+document.getElementById('download-btn').addEventListener('click', () => {
+  const selectedFile = document.getElementById('file-select').value || currentFile;
+  console.log('Downloading file:', selectedFile);
+  window.location.href = `/api/v1/files/${selectedFile}`;
+});
+
+// Upload button
+document.getElementById('upload-btn').addEventListener('click', () => {
+  document.getElementById('upload-input').click();
+});
+
+document.getElementById('upload-input').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    console.log('Uploading file:', file.name);
+    const formData = new FormData();
+    formData.append('file', file);
+    fetch('/api/v1/upload', { method: 'POST', body: formData })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Uploaded file data:', data);
+        // Reload graph and file list (combine nodes and edges into array)
+        cy.elements().remove();
+        const elements = (data.nodes || []).concat(data.edges || []);
+        cy.add(elements);
+        loadFileList();
+        currentFile = file.name;
+      })
+      .catch(e => console.error('Error uploading file:', e));
+  }
+});
 
 // Connect all selected nodes in sequence 
 function updateConnectButton() {
@@ -97,22 +170,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 selector: 'edge',
                 style: {
                     'width': 8,
-                    'line-color': '#FF9800',
-                    'target-arrow-shape': 'triangle',
-                    'target-arrow-color': '#FF5722',
-                    'target-arrow-fill': 'filled',
-                    'curve-style': 'bezier',
-                    'label': 'data(label)',
-                    'font-size': 16,
-                    'color': 'white',
-                    'text-background-color': 'rgba(0,0,0,0.7)',
-                    'text-background-opacity': 0.8
-                }
-            },
-            {
-                selector: 'edge',
-                style: {
-                    'width': 8,
                     'line-color': 'data(color)',  // Use dynamic color from data
                     'target-arrow-shape': 'triangle',
                     'target-arrow-color': 'data(color)',  // Match arrow to line
@@ -142,6 +199,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadGraph();
     setupEvents();
     requestNotificationPermission();  // Request notification permission
+    loadFileList();  // Load file list on startup
 });
 
 function setupEvents() {
@@ -203,7 +261,7 @@ function setupEvents() {
             return;
         }
         dragStartNode = node;
-        console.log('🖱️ Drag started from selected node:', dragStartNode.id());
+        console.log('🏋️‍♂️ Drag started from selected node:', dragStartNode.id());
     });
 
     cy.on('drag', 'node', function(evt) {
@@ -389,7 +447,7 @@ async function downloadPDF() {
                     if (output) {
                         const lines = output.split('\n').slice(0, 50); // limit per command
                         lines.forEach(line => wrapText(line, 9));
-                        if (output.split('\n').length > 50) wrapText("[... output truncated]", 9);
+                        if (output.split('\n').length > 50) wrapText("(... output truncated)", 9);
                     } else {
                         wrapText("(no output)", 9);
                     }
@@ -540,10 +598,7 @@ function showNotification(message, onConfirm) {
         const toast = document.getElementById('toast');
         toast.textContent = message;
         toast.style.display = 'block';
-        toast.onclick = () => {
-            toast.style.display = 'none';
-            onConfirm();
-        };
+        toast.onclick = onConfirm;
         setTimeout(() => toast.style.display = 'none', 5000);
     }
 }
@@ -587,7 +642,9 @@ async function loadGraph() {
         const data = await res.json();
         console.log('📊 Loaded:', data.nodes?.length || 0, 'nodes');
         cy.elements().remove();
-        cy.add(data);
+        // Combine nodes and edges into a single array for Cytoscape
+        const elements = (data.nodes || []).concat(data.edges || []);
+        cy.add(elements);
         // FIXED: Remove layout to preserve positions; just fit and center
         cy.fit(cy.elements(), 60);
         cy.center();

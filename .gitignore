@@ -27,7 +27,8 @@ instance/
 *.flaskenv
 
 # Data
-graph_data.json
+data/*
+*.json
 *.json.backup
 
 # IDE

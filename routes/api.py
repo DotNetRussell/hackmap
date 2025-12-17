@@ -1,5 +1,5 @@
 import uuid
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, session, send_from_directory, abort, current_app
 from models.graph import GraphModel
 from config import Config
 from flask import stream_with_context, Response
@@ -7,17 +7,27 @@ import subprocess
 import threading
 import queue
 import time
+import os
+from werkzeug.utils import secure_filename
 
 api_bp = Blueprint('api', __name__, url_prefix=f'/api/{Config.API_VERSION}')
 
-graph_model = GraphModel(Config.GRAPH_DB_PATH)
+# Global dict to store running processes (node_id -> process + queue)
+running_processes = {}
+
+def get_graph_model():
+    current_file = session.get('current_file', 'default.json')
+    db_path = os.path.join(current_app.config['GRAPH_DB_DIR'], current_file)
+    return GraphModel(db_path)
 
 @api_bp.route('/graph', methods=['GET'])
 def get_graph():
+    graph_model = get_graph_model()
     return jsonify(graph_model.get_graph())
 
 @api_bp.route('/graph/edges/<edge_id>', methods=['PUT'])
 def update_edge(edge_id):
+    graph_model = get_graph_model()
     data = request.json
     label = data.get('label')
     color = data.get('color')
@@ -27,9 +37,10 @@ def update_edge(edge_id):
 
 @api_bp.route('/graph/nodes', methods=['POST'])
 def add_node():
+    graph_model = get_graph_model()
     data = request.json
     name = data.get('name', '')
-    icon = data.get('icon', '🖥️')
+    icon = data.get('icon', '\ud83d\udda5\ufe0f')
     x = data.get('x', 0)
     y = data.get('y', 0)
     node_id = graph_model.add_node(name, icon, x=x, y=y)
@@ -37,6 +48,7 @@ def add_node():
 
 @api_bp.route('/graph/nodes/<node_id>', methods=['DELETE'])
 def delete_node(node_id):
+    graph_model = get_graph_model()
     removed = False
     # Remove node
     graph_model.data["nodes"] = [
@@ -54,6 +66,7 @@ def delete_node(node_id):
 
 @api_bp.route('/graph/nodes/<node_id>', methods=['PUT'])
 def update_node(node_id):
+    graph_model = get_graph_model()
     data = request.json
     name = data.get('name')
     icon = data.get('icon')
@@ -67,6 +80,7 @@ def update_node(node_id):
 
 @api_bp.route('/graph/edges', methods=['POST'])
 def add_edge():
+    graph_model = get_graph_model()
     data = request.json
     source = data.get('source')
     target = data.get('target')
@@ -76,7 +90,7 @@ def add_edge():
     edge_id = f"edge-{uuid.uuid4().hex[:8]}"
     edge = {
         "group": "edges",
-        "data": {"id": edge_id, "source": source, "target": target, "label": "→"}
+        "data": {"id": edge_id, "source": source, "target": target, "label": "\u2192"}
     }
     graph_model.data["edges"].append(edge)
     graph_model._save()
@@ -84,19 +98,19 @@ def add_edge():
 
 @api_bp.route('/graph/edges/<edge_id>', methods=['DELETE'])
 def remove_edge(edge_id):
+    graph_model = get_graph_model()
     graph_model.remove_edge(edge_id)
     return jsonify({'message': 'Removed'}), 200
 
 @api_bp.route('/graph', methods=['DELETE'])
 def clear_graph():
+    graph_model = get_graph_model()
     graph_model.clear()
     return jsonify({'message': 'Graph cleared'}), 200
 
-# Global dict to store running processes (node_id → process + queue)
-running_processes = {}
-
 @api_bp.route('/graph/nodes/<node_id>/execute', methods=['POST'])
 def execute_command(node_id):
+    graph_model = get_graph_model()
     data = request.json
     command = data.get('command', '').strip()
     if not command:
@@ -157,6 +171,7 @@ def execute_command(node_id):
 # NEW: Persist command output
 @api_bp.route('/graph/nodes/<node_id>/persist-command', methods=['POST'])
 def persist_command(node_id):
+    graph_model = get_graph_model()
     data = request.json
     command = data.get('command', '')
     output = data.get('output', '')
@@ -167,6 +182,7 @@ def persist_command(node_id):
 # NEW: Delete persisted command
 @api_bp.route('/graph/nodes/<node_id>/delete-command', methods=['DELETE'])
 def delete_command(node_id):
+    graph_model = get_graph_model()
     data = request.json
     index = data.get('index')
     if index is None:
@@ -174,3 +190,45 @@ def delete_command(node_id):
     if graph_model.delete_command(node_id, index):
         return jsonify({'commands': graph_model.get_node_commands(node_id)}), 200
     return jsonify({'error': 'Node not found or invalid index'}), 404
+
+# New endpoints for file management
+@api_bp.route('/files', methods=['GET'])
+def list_files():
+    files = [f for f in os.listdir(current_app.config['GRAPH_DB_DIR']) if f.endswith('.json')]
+    return jsonify(files)
+
+@api_bp.route('/files/<name>', methods=['GET'])
+def download_file(name):
+    if name not in [f for f in os.listdir(current_app.config['GRAPH_DB_DIR']) if f.endswith('.json')]:
+        abort(404)
+    return send_from_directory(current_app.config['GRAPH_DB_DIR'], name, as_attachment=True)
+
+@api_bp.route('/switch', methods=['POST'])
+def switch_file():
+    data = request.get_json()
+    name = data.get('name')
+    if not name or not name.endswith('.json'):
+        return 'Invalid file', 400
+    if name not in [f for f in os.listdir(current_app.config['GRAPH_DB_DIR']) if f.endswith('.json')]:
+        return 'File not found', 404
+    session['current_file'] = name
+    # Return the new graph data to update the UI
+    graph_model = get_graph_model()
+    return jsonify(graph_model.get_graph())
+
+@api_bp.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return 'No file part', 400
+    file = request.files['file']
+    if file.filename == '':
+        return 'No selected file', 400
+    if not file.filename.endswith('.json'):
+        return 'Invalid file type', 400
+    filename = secure_filename(file.filename)
+    file_path = os.path.join(current_app.config['GRAPH_DB_DIR'], filename)
+    file.save(file_path)
+    session['current_file'] = filename
+    # Return the uploaded graph data
+    graph_model = get_graph_model()
+    return jsonify(graph_model.get_graph())
