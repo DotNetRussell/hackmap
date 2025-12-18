@@ -260,3 +260,14 @@ button:hover { background: #45a049; transform: translateY(-1px); }
     border-radius: 4px; 
     box-sizing: border-box; 
 }
+#new-workspace-modal .modal-content { max-width: 300px; }
+#workspace-name { 
+    width: 100%; 
+    padding: 8px; 
+    margin: 5px 0; 
+    background: #555; 
+    color: white; 
+    border: 1px solid #777; 
+    border-radius: 4px; 
+    box-sizing: border-box; 
+}

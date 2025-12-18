@@ -75,6 +75,55 @@ document.getElementById('upload-input').addEventListener('change', (e) => {
   }
 });
 
+// NEW: New Workspace button
+document.getElementById('new-workspace-btn').addEventListener('click', () => {
+  document.getElementById('new-workspace-modal').style.display = 'block';
+});
+
+// NEW: Close new workspace modal
+function closeNewWorkspaceModal() {
+  document.getElementById('new-workspace-modal').style.display = 'none';
+  document.getElementById('workspace-name').value = '';
+}
+
+// NEW: Create workspace
+function createWorkspace() {
+  const name = document.getElementById('workspace-name').value.trim();
+  if (!name) {
+    alert('Name required!');
+    return;
+  }
+  if (!name.endsWith('.json')) {
+    alert('Name must end with .json!');
+    return;
+  }
+  fetch('/api/v1/create', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name })
+  })
+  .then(response => {
+    if (!response.ok) {
+      return response.text().then(text => { throw new Error(text); });
+    }
+    return response.json();
+  })
+  .then(data => {
+    console.log('Created workspace:', name);
+    // Reload graph and file list (combine nodes and edges into array)
+    cy.elements().remove();
+    const elements = (data.nodes || []).concat(data.edges || []);
+    cy.add(elements);
+    loadFileList();
+    currentFile = name;
+    closeNewWorkspaceModal();
+  })
+  .catch(e => {
+    alert('Error creating workspace: ' + e.message);
+    console.error('Error creating workspace:', e);
+  });
+}
+
 // Connect all selected nodes in sequence 
 function updateConnectButton() {
     const btn = document.getElementById('connect-btn');

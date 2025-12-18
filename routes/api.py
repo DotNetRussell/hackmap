@@ -8,6 +8,7 @@ import threading
 import queue
 import time
 import os
+import json
 from werkzeug.utils import secure_filename
 
 api_bp = Blueprint('api', __name__, url_prefix=f'/api/{Config.API_VERSION}')
@@ -232,3 +233,23 @@ def upload_file():
     # Return the uploaded graph data
     graph_model = get_graph_model()
     return jsonify(graph_model.get_graph())
+
+# NEW: Create new workspace
+@api_bp.route('/create', methods=['POST'])
+def create_workspace():
+    data = request.get_json()
+    name = data.get('name', '').strip()
+    if not name:
+        return 'Name required', 400
+    if not name.endswith('.json'):
+        name += '.json'
+    file_path = os.path.join(current_app.config['GRAPH_DB_DIR'], name)
+    if os.path.exists(file_path):
+        return 'File already exists', 400
+    # Create empty graph
+    os.makedirs(current_app.config['GRAPH_DB_DIR'], exist_ok=True)
+    with open(file_path, 'w') as f:
+        json.dump({"nodes": [], "edges": []}, f)
+    session['current_file'] = name
+    # Return empty graph data
+    return jsonify({"nodes": [], "edges": []})

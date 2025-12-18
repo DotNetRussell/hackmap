@@ -16,6 +16,7 @@
             <button id="download-btn">Download</button>
             <input type="file" id="upload-input" accept=".json" style="display:none;">
             <button id="upload-btn">Upload</button>
+            <button id="new-workspace-btn">New Workspace</button>
         </div>
         <div>
             <select id="node-icon">
@@ -135,6 +136,21 @@
             <button onclick="document.getElementById('node-command-flyout').style.display='none';">×</button>
         </div>
         <div id="flyout-commands" class="all-commands"></div>
+    </div>
+
+    <!-- NEW: New Workspace Modal -->
+    <div id="new-workspace-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>Create New Workspace</span>
+                <button class="close" onclick="closeNewWorkspaceModal()">×</button>
+            </div>
+            <label for="workspace-name">Workspace Name:</label>
+            <input type="text" id="workspace-name" placeholder="e.g. project1.json">
+            <button onclick="createWorkspace()" style="width: 100%; padding: 12px; font-size: 16px; margin-top: 10px;">
+                Create
+            </button>
+        </div>
     </div>
 
     <script src="/static/js/graph.js"></script>
