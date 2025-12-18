@@ -6,6 +6,8 @@ HackMap is a lightweight, local-first pentest mapping tool that combines an inte
 
 ### Features
 
+- Track multiple workspaces at once
+- Export graph data for easy backup and sharing
 - Interactive drag-and-drop attack graph 
 - Visual connection paths (RDP, WinRM, SMB, etc.)
 - Per-node command execution with **real-time streaming output**
@@ -18,7 +20,9 @@ HackMap is a lightweight, local-first pentest mapping tool that combines an inte
 ### Screenshot
 
 ### Easily generate network diagrams using nodes 
-![HackMap in action](https://i.imgur.com/yI0SCTb.png)
+![HackMap in action](https://i.imgur.com/ryzWFKi.png)
+![HackMap in action](https://i.imgur.com/L844UpX.png)
+![HackMap in action](https://i.imgur.com/k91I5si.png)
 
 ### Each node has contextual notes as well as the ability to tie shell commands directly to the node for tracking
 ![HackMap in action](https://i.imgur.com/NGftOC3.png)
