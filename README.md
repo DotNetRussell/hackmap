@@ -1,8 +1,14 @@
 
 # HackMap 🗺️
-**Visual attack graph + live command execution for red teamers**
+**Visual attack graph + live command execution for red teamers, penetration testers, and students**
 HackMap is a lightweight, local-first pentest mapping tool that combines an interactive Cytoscape graph with real-time shell command execution, persistent command history, subgraphs, and hierarchical PDF reports — all in one clean, responsive interface.
 
+### Quick Start
+1. Install Python 3 and Flask.
+2. Run `python app.py`.
+3. Open `http://localhost:5000` in your browser.
+4. Create a workspace, add nodes, connect them, execute commands, and export reports.
+5. 
 ### Features
 - **Multiple Workspaces**: Track and switch between multiple JSON-based workspaces for different engagements.
 - **Interactive Graph**: Drag-and-drop nodes with icons (PC, Person, Admin, Lock, Skull, Endpoint) for visual attack mapping.
@@ -35,9 +41,3 @@ HackMap is a lightweight, local-first pentest mapping tool that combines an inte
 ![HackMap in action](https://i.imgur.com/NGftOC3.png)
 ### Generate a report that dumps out all the raw node data for more organized report writing 
 ![HackMap in action](https://i.imgur.com/pSuQfQj.png)
-
-### Quick Start
-1. Install Python 3 and Flask.
-2. Run `python app.py`.
-3. Open `http://localhost:5000` in your browser.
-4. Create a workspace, add nodes, connect them, execute commands, and export reports.
