@@ -28,7 +28,8 @@
                 <option value="Endpoint">🌐 Endpoint</option>
             </select>
             <input type="text" id="node-name" placeholder="Node name">
-            <button onclick="addNode()">✅ Add Node</button>
+            <button id="add-node-btn" onclick="addNode()">✅ Add Node</button>
+            <button id="add-sub-node-btn" onclick="addSubNode()" style="display: none;">➕ Add Sub Node</button>
         </div>
         <!-- In the context-bar, replace the old buttons with this -->
         <div>
@@ -38,9 +39,9 @@
             <button onclick="downloadPDF()" style="background:#E91E63;">📄 Download PDF Report</button>
         </div>
     </div>
-
+    <div id="breadcrumb">Root Graph</div>
+    <button id="back-btn" style="position: fixed; top: 100px; left: 20px; z-index: 1001; display: none;">⬅ Back</button>
     <div id="cy"></div>
-
     <!-- NEW: Side Panel for Command Output -->
     <!-- <div id="side-panel" class="side-panel">
         <div class="side-panel-header">
@@ -58,7 +59,6 @@
         </div>
         <div id="all-commands" class="all-commands"></div>
     </div>
-
     <!-- Toast notification -->
     <div id="toast" class="toast"></div>
 <!-- Edge Edit Modal -->
@@ -115,6 +115,11 @@
                 <button onclick="executeCommand()" style="width: auto;">Run</button>
             </div>
     
+            <!-- Button to Show Command History -->
+            <button onclick="showCommandHistory()" style="width: 100%; padding: 10px; font-size: 14px; margin-top: 15px; background: #2196F3; border: none; color: white; border-radius: 4px; cursor: pointer;">
+                View Command History
+            </button>
+    
             <!-- Persisted Commands -->
             <h3 style="margin-top: 15px;">Command History</h3>
             <div id="persisted-commands" style="max-height: 300px; overflow-y: auto; margin-bottom: 15px;"></div>
@@ -137,7 +142,6 @@
         </div>
         <div id="flyout-commands" class="all-commands"></div>
     </div>
-
     <!-- NEW: New Workspace Modal -->
     <div id="new-workspace-modal" class="modal">
         <div class="modal-content">
@@ -152,7 +156,6 @@
             </button>
         </div>
     </div>
-
     <script src="/static/js/graph.js"></script>
 </body>
 </html>
