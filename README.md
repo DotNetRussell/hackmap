@@ -8,7 +8,7 @@ HackMap is a lightweight, local-first pentest mapping tool that combines an inte
 2. Run `python app.py`.
 3. Open `http://localhost:5000` in your browser.
 4. Create a workspace, add nodes, connect them, execute commands, and export reports.
-5. 
+   
 ### Features
 - **Multiple Workspaces**: Track and switch between multiple JSON-based workspaces for different engagements.
 - **Interactive Graph**: Drag-and-drop nodes with icons (PC, Person, Admin, Lock, Skull, Endpoint) for visual attack mapping.
