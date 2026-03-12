@@ -1,3 +1,4 @@
+![BloodBash verbose output example](https://i.imgur.com/m5RVnJZ.png)
 
 # HackMap 🗺️
 **Visual attack graph + live command execution for red teamers, penetration testers, and students**
